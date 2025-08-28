@@ -1,11 +1,15 @@
 import * as bcrypt from 'bcrypt'
-import { RefreshTokenDto, SignInDto, SignUpDto } from '@app/contracts/auth/auth.request.dto'
-import { HttpStatus, Injectable } from '@nestjs/common'
-import { RpcException } from '@nestjs/microservices'
+import { RefreshTokenDto, SignInDto, SignUpDto } from '@app/contracts/dtos/auth/auth.request.dto'
+import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { ClientProxy, RpcException } from '@nestjs/microservices'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from './entities/user.entity'
-import { RefreshTokenResponseDto, SignInResponseDto, SignUpResponseDto } from '@app/contracts/auth/auth.response.dto'
+import {
+    RefreshTokenResponseDto,
+    SignInResponseDto,
+    SignUpResponseDto,
+} from '@app/contracts/dtos/auth/auth.response.dto'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { plainToInstance } from 'class-transformer'
@@ -57,13 +61,7 @@ export class AuthService {
                 throw new RpcException({
                     statusCode: HttpStatus.UNAUTHORIZED,
                     message: 'Invalid credentials!',
-                    error: 'Un',
                 })
-            }
-            const payload = {
-                id: user.id,
-                email: user.email,
-                role: user.role,
             }
             const accessToken = await this.generateTokens(user, '1h', this.configService.get('JWT_ACCESS_TOKEN_SECRET'))
             const refreshToken = await this.generateTokens(
